@@ -37,12 +37,45 @@ public class Main {
         }
     }
 
-    public static void UpdateB(Stack B, Map<String, PatternInfo> C, int depth, String label, int time) {
-        int top = B.size();
+    void FindRootOcc(SweepBranchStack B, Triple t) {
+        
     }
 
-    public static void UpdateC() {
+    public static List<Triple> UpdateB(SweepBranchStack B, Map<String, PatternInfo> C, int depth, String label, int time) {
+        int top = B.top;
+        if (depth <= top) {
 
+        }
+        List<Triple> exp = new ArrayList<Triple>();
+        exp.add(new Triple(label, depth, depth));
+
+        if (depth - 1 >= 0) {
+            SweepBranch d_1 = B.SB.get(depth-1);
+            for (Iterator<Triple> it = d_1.B.iterator(); it.hasNext(); ) {
+
+            }
+        }
+        return exp;
+    }
+
+    public static Map<String, PatternInfo> UpdateC(List<Triple> exp, SweepBranchStack B, Map<String, PatternInfo> C,
+                               int depth, String label, int time) {
+
+        // Increment candidates
+        for (Iterator<Triple> it = exp.iterator(); it.hasNext(); ) {
+
+        }
+
+        // Delete candidates
+        for (Iterator<Map.Entry<String, PatternInfo>> it = C.entrySet().iterator(); it.hasNext(); ) {
+
+        }
+        // Insert candidates in B[d]
+        for (Iterator<Triple> it = exp.iterator(); it.hasNext(); ) {
+
+        }
+
+        return C;
     }
     
     public static void main(String args[]) throws Exception{
@@ -58,7 +91,7 @@ public class Main {
                 int depth = Integer.parseInt(tokens[0]);
                 String label = tokens[1];
 
-                Stack SB = new Stack<SweepBranch>();
+                SweepBranchStack SB = new SweepBranchStack();
                 Map<String, PatternInfo> C = new HashMap<String, PatternInfo>();
 
                 UpdateB(SB, C, depth, label, time);

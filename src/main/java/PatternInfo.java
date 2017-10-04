@@ -28,4 +28,12 @@ public class PatternInfo {
     public void setRootOccurence(List<Integer> rootOccurence) {
         this.rootOccurence = rootOccurence;
     }
+
+    @Override
+    public String toString() {
+        return "PatternInfo{" +
+                "count=" + count +
+                ", rootOccurence=" + rootOccurence +
+                '}';
+    }
 }
