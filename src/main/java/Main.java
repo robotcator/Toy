@@ -37,8 +37,8 @@ public class Main {
         }
     }
 
-    void FindRootOcc(SweepBranchStack B, Triple t) {
-        
+    public static Pair<Integer, String> FindRootOcc(SweepBranchStack B, Triple t) {
+        return ;
     }
 
     public static List<Triple> UpdateB(SweepBranchStack B, Map<String, PatternInfo> C, int depth, String label, int time) {
@@ -47,15 +47,22 @@ public class Main {
 
         }
         List<Triple> exp = new ArrayList<Triple>();
-        exp.add(new Triple(label, depth, depth));
+        exp.add(new Triple("0" + label, depth, depth));
 
         if (depth - 1 >= 0) {
             SweepBranch d_1 = B.SB.get(depth-1);
             for (Iterator<Triple> it = d_1.B.iterator(); it.hasNext(); ) {
-
+                Triple item = it.next();
+                System.out.println(item);
+                String T = item.Pattern + String.valueOf(depth-item.root) + label;
+                exp.add(new Triple(T, item.root, depth));
             }
         }
         return exp;
+    }
+
+    public static String getPredecessor(String pattern) {
+        return "";
     }
 
     public static Map<String, PatternInfo> UpdateC(List<Triple> exp, SweepBranchStack B, Map<String, PatternInfo> C,
@@ -63,7 +70,19 @@ public class Main {
 
         // Increment candidates
         for (Iterator<Triple> it = exp.iterator(); it.hasNext(); ) {
+            Triple item = it.next();
 
+            Pair<Integer, String> p = FindRootOcc(B, item);
+
+            if (p.getKey() == -1) {
+                if (C.containsKey(item.Pattern)) {
+
+                }
+                String predecessor = getPredecessor(item.Pattern);
+                if (!C.containsKey(item.Pattern)) {
+
+                }
+            }
         }
 
         // Delete candidates

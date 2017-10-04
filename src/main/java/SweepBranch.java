@@ -6,8 +6,10 @@ import java.util.List;
  */
 public class SweepBranch {
     List<Triple> B;
+    int time;
 
     public SweepBranch() {
-        B = new ArrayList<Triple>();
+        this.B = new ArrayList<Triple>();
+        this.time = 0;
     }
 }
