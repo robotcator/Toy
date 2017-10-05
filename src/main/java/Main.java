@@ -38,34 +38,36 @@ public class Main {
     }
 
     public static Pair<Integer, String> FindRootOcc(SweepBranchStack B, Triple t) {
-        return ;
+        return new Pair<Integer, String>(-1, "Undefined");
     }
 
-    public static List<Triple> UpdateB(SweepBranchStack B, Map<String, PatternInfo> C, int depth, String label, int time) {
+    public static List<Triple> UpdateB(SweepBranchStack B, Map<Pattern, PatternInfo> C, int depth, String label, int time) {
         int top = B.top;
         if (depth <= top) {
 
         }
         List<Triple> exp = new ArrayList<Triple>();
-        exp.add(new Triple("0" + label, depth, depth));
+        exp.add(new Triple(new Pattern("0" + label), depth, depth));
 
         if (depth - 1 >= 0) {
             SweepBranch d_1 = B.SB.get(depth-1);
             for (Iterator<Triple> it = d_1.B.iterator(); it.hasNext(); ) {
+                //  for each (S, r, d-1) in B[d-1]
                 Triple item = it.next();
                 System.out.println(item);
-                String T = item.Pattern + String.valueOf(depth-item.root) + label;
-                exp.add(new Triple(T, item.root, depth));
+                String T = item.pat + String.valueOf(depth-item.root) + label;
+                exp.add(new Triple(new Pattern(T), item.root, depth));
             }
         }
+        System.out.println("updateB: " + exp);
         return exp;
     }
 
-    public static String getPredecessor(String pattern) {
-        return "";
+    public static Pattern getPredecessor(Pattern pattern, Map<Pattern, PatternInfo> C) {
+        return new Pattern("");
     }
 
-    public static Map<String, PatternInfo> UpdateC(List<Triple> exp, SweepBranchStack B, Map<String, PatternInfo> C,
+    public static Map<Pattern, PatternInfo> UpdateC(List<Triple> exp, SweepBranchStack B, Map<Pattern, PatternInfo> C,
                                int depth, String label, int time) {
 
         // Increment candidates
@@ -75,23 +77,48 @@ public class Main {
             Pair<Integer, String> p = FindRootOcc(B, item);
 
             if (p.getKey() == -1) {
-                if (C.containsKey(item.Pattern)) {
-
+                if (C.containsKey(item.pat)) {
+                    item.pat.pinfo.count += 1;
                 }
-                String predecessor = getPredecessor(item.Pattern);
-                if (!C.containsKey(item.Pattern)) {
+                Pattern predecessor = getPredecessor(item.pat, C);
+                if (!C.containsKey(item.pat) && predecessor.pinfo.freq > Config.threshhold) {
+                    item.pat.pinfo.count = 1;
+                    C.put(item.pat, item.pat.pinfo);
 
                 }
             }
         }
 
+        B.top = depth;
+        if (B.SB.size() > depth) {
+            B.SB.get(depth).clear();
+        }else{
+            B.SB.add(new SweepBranch());
+        }
+        B.SB.get(depth).time = time;
+
+        // update the frequency
+        for (Iterator<Map.Entry<Pattern, PatternInfo>> it = C.entrySet().iterator(); it.hasNext(); ) {
+            Map.Entry<Pattern, PatternInfo> entry = it.next();
+            entry.getKey().pinfo.freq = entry.getKey().pinfo.count / time;
+            // update the frequency in patternInfo
+        }
+
         // Delete candidates
-        for (Iterator<Map.Entry<String, PatternInfo>> it = C.entrySet().iterator(); it.hasNext(); ) {
+        for (Iterator<Map.Entry<Pattern, PatternInfo>> it = C.entrySet().iterator(); it.hasNext(); ) {
+            Map.Entry<Pattern, PatternInfo> entry = it.next();
+            Pattern predecessor = getPredecessor(entry.getKey(), C);
+            if (true) {
+
+            }
 
         }
         // Insert candidates in B[d]
         for (Iterator<Triple> it = exp.iterator(); it.hasNext(); ) {
-
+            Triple item = it.next();
+            if (C.containsKey(item.pat)) {
+                B.SB.get(depth).B.add(item);
+            }
         }
 
         return C;
@@ -110,18 +137,30 @@ public class Main {
                 int depth = Integer.parseInt(tokens[0]);
                 String label = tokens[1];
 
+                // initialize SB = None, top = -1; i = 1;
                 SweepBranchStack SB = new SweepBranchStack();
-                Map<String, PatternInfo> C = new HashMap<String, PatternInfo>();
 
-                UpdateB(SB, C, depth, label, time);
+                Map<Pattern, PatternInfo> C = new HashMap<Pattern, PatternInfo>();
+                // the class of all single node patterns, is there any better way to handle?
+                C.put(new Pattern("0A"), new PatternInfo());
+                C.put(new Pattern("0B"), new PatternInfo());
+                C.put(new Pattern("0R"), new PatternInfo());
+
+                List<Triple> exp = UpdateB(SB, C, depth, label, time);
+
+                UpdateC(exp, SB, C, depth, label, time);
 
                 time += 1;
+
             }
 
             bfReader.close();
         }catch (IOException e){
             e.printStackTrace();
         }
+    }
 
+    public static void test_function() {
+        // test the Set's get function
     }
 }

@@ -12,4 +12,10 @@ public class SweepBranch {
         this.B = new ArrayList<Triple>();
         this.time = 0;
     }
+
+    public void clear() {
+        this.time = 0;
+        B.clear();
+    }
+
 }

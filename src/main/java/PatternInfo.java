@@ -6,6 +6,7 @@ import java.util.List;
  */
 public class PatternInfo {
     int count;
+    float freq;
     List<Integer> rootOccurence;
 
     public PatternInfo() {
@@ -33,6 +34,7 @@ public class PatternInfo {
     public String toString() {
         return "PatternInfo{" +
                 "count=" + count +
+                ", freq=" + freq +
                 ", rootOccurence=" + rootOccurence +
                 '}';
     }

@@ -5,7 +5,7 @@ public class Pair <K extends Object, V extends  Object> {
     K key;
     V value;
 
-    public Pair(V value, K key) {
+    public Pair(K key, V value) {
         this.value = value;
         this.key = key;
     }

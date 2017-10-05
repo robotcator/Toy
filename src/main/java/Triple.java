@@ -1,10 +1,11 @@
 public class Triple {
-    String Pattern;
+//    String Pattern;
+    Pattern pat;
     int root;
     int bottom;
 
-    public Triple(String pattern, int root, int bottom) {
-        Pattern = pattern;
+    public Triple(Pattern pattern, int root, int bottom) {
+        this.pat = pattern;
         this.root = root;
         this.bottom = bottom;
     }
@@ -12,7 +13,7 @@ public class Triple {
     @Override
     public String toString() {
         return "Triple{" +
-                "Pattern='" + Pattern + '\'' +
+                "Pattern='" + pat + '\'' +
                 ", root=" + root +
                 ", bottom=" + bottom +
                 '}';
