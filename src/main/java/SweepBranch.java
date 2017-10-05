@@ -18,4 +18,11 @@ public class SweepBranch {
         B.clear();
     }
 
+    @Override
+    public String toString() {
+        return "SweepBranch{" +
+                "B=" + B +
+                ", time=" + time +
+                '}';
+    }
 }

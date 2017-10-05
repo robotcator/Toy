@@ -7,11 +7,11 @@ import java.util.List;
 public class PatternInfo {
     int count;
     float freq;
-    List<Integer> rootOccurence;
+    List<Pair<Integer, String>> rootOccurence;
 
     public PatternInfo() {
-        count = 0;
-        rootOccurence = new ArrayList<Integer>();
+        this.count = 0;
+        this.rootOccurence = new ArrayList<Pair<Integer, String>>();
     }
 
     public int getCount() {
@@ -22,12 +22,22 @@ public class PatternInfo {
         this.count = count;
     }
 
-    public List<Integer> getRootOccurence() {
-        return rootOccurence;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        PatternInfo that = (PatternInfo) o;
+
+        if (count != that.count) return false;
+        return rootOccurence != null ? rootOccurence.equals(that.rootOccurence) : that.rootOccurence == null;
     }
 
-    public void setRootOccurence(List<Integer> rootOccurence) {
-        this.rootOccurence = rootOccurence;
+    @Override
+    public int hashCode() {
+        int result = count;
+        result = 31 * result + (rootOccurence != null ? rootOccurence.hashCode() : 0);
+        return result;
     }
 
     @Override

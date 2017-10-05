@@ -10,4 +10,12 @@ public class SweepBranchStack {
         this.SB = new ArrayList<SweepBranch>();
         this.top = -1;
     }
+
+    @Override
+    public String toString() {
+        return "SweepBranchStack{" +
+                "SB=" + SB +
+                ", top=" + top +
+                '}';
+    }
 }

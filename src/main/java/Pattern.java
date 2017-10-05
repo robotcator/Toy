@@ -23,7 +23,6 @@ public class Pattern {
                 '}';
     }
 
-    // is this right?
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
