@@ -37,11 +37,23 @@ public class Main {
         }
     }
 
-    public static Pair<Integer, String> FindRootOcc(SweepBranchStack B, Triple t) {
+    public static Pair<Integer, String> FindRootOcc(SweepBranchStack B, Triple t, Map<Pattern, PatternInfo> C) {
         System.out.println("FindRootOcc: " + t + " " + B.SB.size());
+        System.out.println(B.SB.size() + " " + t.root);
+
         if (B.SB.size() == 0 || B.SB.size() <= t.root) {
-            int time = 0;
-            return Config.v.get(time);
+            Pair<Integer, String> p = new Pair<Integer, String>(0, "");
+            // B[r].time not define
+
+            // update root occurrence
+            for (Iterator<Map.Entry<Pattern, PatternInfo>> it = C.entrySet().iterator(); it.hasNext(); ) {
+                Map.Entry<Pattern, PatternInfo> item = it.next();
+                if (item.getKey().pattern.equals(t.pat)) {
+
+                }
+            }
+
+            return p;
         }else{
             int time = B.SB.get(t.root).time;
             Pair<Integer, String> p = Config.v.get(time);
@@ -74,12 +86,11 @@ public class Main {
 
             for (Iterator<SweepBranch> it = Below.SB.iterator(); it.hasNext(); ) {
                 SweepBranch item = it.next();
-                System.out.println("SweepBranch: " + item);
+//                System.out.println("SweepBranch: " + item);
                 if (item.B.size() > 0) { // do not iterator the none elements
-                    for (Iterator<Triple> tit = item.B.iterator(); it.hasNext(); ) {
+                    for (Iterator<Triple> tit = item.B.iterator(); tit.hasNext(); ) {
                         Triple triple = tit.next();
-                        System.out.println("Below: " + triple);
-
+//                        System.out.println("Below: " + triple);
                         if (triple.root >= depth) {
                             Remove.add(triple);
                         }
@@ -94,23 +105,24 @@ public class Main {
             // Change the bottom occurrences of the triples
             for (Iterator<Triple> it = Change.iterator(); it.hasNext(); ) {
                 Triple triple = it.next();
-                System.out.println("Change: " + triple);
+//                System.out.println("Change: " + triple);
                 if (triple.bottom == depth-1) {
                     B.SB.get(depth-1).B.add(triple);
                 }
             }
 
         }
+        // single node tree with the label ``
         List<Triple> exp = new ArrayList<Triple>();
         exp.add(new Triple(new Pattern("0" + label), depth, depth));
 
         if (depth - 1 >= 0) {
             SweepBranch d_1 = B.SB.get(depth-1);
-            System.out.println("SweepBranch:" + d_1);
+//            System.out.println("SweepBranch:" + d_1);
             for (Iterator<Triple> it = d_1.B.iterator(); it.hasNext(); ) {
                 //  for each (S, r, d-1) in B[d-1]
                 Triple item = it.next();
-                System.out.println("expansion: " + item);
+//                System.out.println("expansion: " + item);
                 String T = item.pat.pattern + String.valueOf(depth-item.root) + label;
                 exp.add(new Triple(new Pattern(T), item.root, depth));
             }
@@ -163,6 +175,7 @@ public class Main {
         }
 
         B.top = depth;
+        // B[d] = None
         if (B.SB.size() > depth) {
             B.SB.get(depth).clear();
         }else{
@@ -181,7 +194,10 @@ public class Main {
         for (Iterator<Map.Entry<Pattern, PatternInfo>> it = C.entrySet().iterator(); it.hasNext(); ) {
             Map.Entry<Pattern, PatternInfo> entry = it.next();
             Pattern predecessor = getPredecessor(entry.getKey(), C);
-            if (true) {
+            if (predecessor.pattern.length() == 0) {
+                // do not have predecessor
+            }else{
+                // infrequent at time i and frequent at time i-1
 
             }
 
@@ -215,7 +231,7 @@ public class Main {
 
             String tempStr;
             while ((tempStr = bfReader.readLine()) != null) {
-                System.out.println(tempStr);
+                System.out.println(time + " " + tempStr);
                 String[] tokens = tempStr.split(",");
                 int depth = Integer.parseInt(tokens[0]);
                 String label = tokens[1].trim();

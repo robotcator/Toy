@@ -11,4 +11,6 @@ public class Config {
 
     // store the streamline data
     static List<Pair<Integer, String>> v = new ArrayList<Pair<Integer, String>>();
+
+    static List<Pattern> F = new ArrayList<Pattern>();
 }
