@@ -15,6 +15,14 @@ public class Pattern {
         this.pinfo = pinfo;
     }
 
+    public void setPattern(String pattern) {
+        this.pattern = pattern;
+    }
+
+    public void setPinfo(PatternInfo pinfo) {
+        this.pinfo = pinfo;
+    }
+
     @Override
     public String toString() {
         return "Pattern{" +

@@ -22,6 +22,10 @@ public class PatternInfo {
         this.count = count;
     }
 
+    public void setFreq(float freq) {
+        this.freq = freq;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

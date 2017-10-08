@@ -8,6 +8,14 @@ public class SweepBranch {
     List<Triple> B;
     int time;
 
+    public void setB(List<Triple> b) {
+        B = b;
+    }
+
+    public void setTime(int time) {
+        this.time = time;
+    }
+
     public SweepBranch() {
         this.B = new ArrayList<Triple>();
         this.time = 0;

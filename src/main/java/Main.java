@@ -37,42 +37,72 @@ public class Main {
         }
     }
 
-    public static Pair<Integer, String> FindRootOcc(SweepBranchStack B, Triple t, Map<Pattern, PatternInfo> C) {
+    public static Pair<Integer, String> FindRootOcc(SweepBranchStack B, Triple t, Map<String, PatternInfo> C) {
         System.out.println("FindRootOcc: " + t + " " + B.SB.size());
-        System.out.println(B.SB.size() + " " + t.root);
+        System.out.println("candidate: " + C);
 
         if (B.SB.size() == 0 || B.SB.size() <= t.root) {
             Pair<Integer, String> p = new Pair<Integer, String>(0, "");
             // B[r].time not define
-
             // update root occurrence
-            for (Iterator<Map.Entry<Pattern, PatternInfo>> it = C.entrySet().iterator(); it.hasNext(); ) {
-                Map.Entry<Pattern, PatternInfo> item = it.next();
-                if (item.getKey().pattern.equals(t.pat)) {
 
-                }
+            while (t.pat.pinfo.rootOccurence.size() < t.root) {
+                t.pat.pinfo.rootOccurence.add(new Pair<Integer, String>(-1, "Null"));
             }
+            t.pat.pinfo.rootOccurence.add(p);
 
             return p;
         }else{
             int time = B.SB.get(t.root).time;
             Pair<Integer, String> p = Config.v.get(time);
 
-            if (t.pat.pinfo.rootOccurence.size() > t.root
-                    && t.pat.pinfo.rootOccurence.get(t.root) == p) {
-                return new Pair<Integer, String>(-1, "Undefined");
-            }else{
-                if (t.pat.pinfo.rootOccurence.size() == 0 || t.pat.pinfo.rootOccurence.size() < t.root) {
-                    t.pat.pinfo.rootOccurence.add(p);
+            if (C.containsKey(t.pat.pattern)) {
+                // exist pattern
+                if (C.get(t.pat.pattern).rootOccurence.size() <= t.root) {
+                    while(C.get(t.pat.pattern).rootOccurence.size() <= t.root) {
+                        C.get(t.pat.pattern).rootOccurence.add(new Pair<Integer, String>(-1, "Null"));
+                    }
+                    C.get(t.pat.pattern).rootOccurence.add(p);
+                    t.pat.setPinfo(C.get(t.pat.pattern));
+                    return p;
                 }else{
-                    t.pat.pinfo.rootOccurence.set(t.root, p);
+                    Pair<Integer, String> rootOcc = C.get(t.pat.pattern).rootOccurence.get(t.root);
+                    if (rootOcc.equals(p)) {
+                        return new Pair<Integer, String>(-1, "Undefine");
+                    }else{
+//                        C.get(t.pat.pattern).rootOccurence.get(t.root).setKey(p.key);
+//                        C.get(t.pat.pattern).rootOccurence.get(t.root).setValue(p.value);
+                        rootOcc.setKey(p.key);
+                        rootOcc.setValue(p.value);
+                        t.pat.setPinfo(C.get(t.pat.pattern));
+                        return p;
+                    }
                 }
-                return p;
+
+            }else{
+                if (t.pat.pinfo.rootOccurence.size() <= t.root) {
+                    while(t.pat.pinfo.rootOccurence.size() <= t.root) {
+                        t.pat.pinfo.rootOccurence.add(new Pair<Integer, String>(-1, "Null"));
+                    }
+                    t.pat.pinfo.rootOccurence.add(p);
+                    return p;
+                }else{
+                    Pair<Integer, String> rootOcc = t.pat.pinfo.rootOccurence.get(t.root);
+
+                    if (rootOcc.equals(p)) {
+                        return new Pair<Integer, String>(-1, "Undefine");
+                    }else {
+                        t.pat.pinfo.rootOccurence.get(t.root).setKey(p.key);
+                        t.pat.pinfo.rootOccurence.get(t.root).setValue(p.value);
+                        return p;
+                    }
+                }
+
             }
         }
     }
 
-    public static List<Triple> UpdateB(SweepBranchStack B, Map<Pattern, PatternInfo> C, int depth, String label, int time) {
+    public static List<Triple> UpdateB(SweepBranchStack B, Map<String, PatternInfo> C, int depth, String label, int time) {
         int top = B.top;
         if (depth <= top) {
             SweepBranchStack Below = new SweepBranchStack();
@@ -110,19 +140,19 @@ public class Main {
                     B.SB.get(depth-1).B.add(triple);
                 }
             }
-
         }
-        // single node tree with the label ``
+
+        // single node tree with the label `l`
         List<Triple> exp = new ArrayList<Triple>();
         exp.add(new Triple(new Pattern("0" + label), depth, depth));
 
         if (depth - 1 >= 0) {
             SweepBranch d_1 = B.SB.get(depth-1);
-//            System.out.println("SweepBranch:" + d_1);
+            System.out.println("SweepBranch:" + d_1);
             for (Iterator<Triple> it = d_1.B.iterator(); it.hasNext(); ) {
                 //  for each (S, r, d-1) in B[d-1]
                 Triple item = it.next();
-//                System.out.println("expansion: " + item);
+                System.out.println("expansion: " + item);
                 String T = item.pat.pattern + String.valueOf(depth-item.root) + label;
                 exp.add(new Triple(new Pattern(T), item.root, depth));
             }
@@ -131,48 +161,46 @@ public class Main {
         return exp;
     }
 
-    public static Pattern getPredecessor(Pattern pattern, Map<Pattern, PatternInfo> C) {
-        String predecessor = pattern.pattern.substring(0, pattern.pattern.length()-2);
+    public static Pattern getPredecessor(String pattern, Map<String, PatternInfo> C) {
+        String predecessor = pattern.substring(0, pattern.length()-2);
         if (predecessor.length() == 0) {
             // the predecessor is None
             return new Pattern("");
         }else{
-            for (Iterator<Map.Entry<Pattern, PatternInfo>> it = C.entrySet().iterator(); it.hasNext(); ) {
-                Map.Entry<Pattern, PatternInfo> item = it.next();
-                if (item.getKey().pattern.equals(predecessor)) {
-                    return item.getKey();
-                }
-            }
+            return new Pattern(predecessor, C.get(predecessor));
         }
-        return new Pattern("");
     }
 
-    public static Map<Pattern, PatternInfo> UpdateC(List<Triple> exp, SweepBranchStack B, Map<Pattern, PatternInfo> C,
+    public static Map<String, PatternInfo> UpdateC(List<Triple> exp, SweepBranchStack B, Map<String, PatternInfo> C,
                                int depth, String label, int time) {
-
         // Increment candidates
         for (Iterator<Triple> it = exp.iterator(); it.hasNext(); ) {
             Triple item = it.next();
 
-            Pair<Integer, String> p = FindRootOcc(B, item);
+            Pair<Integer, String> p = FindRootOcc(B, item, C);
+            System.out.println("RootOcc: " + p);
+            System.out.println("Candidate update: " + C);
+            System.out.println("Triple item: " + item);
 
-            if (p.getKey() != -1) {
-                if (C.containsKey(item.pat)) {
-                    C.remove(item.pat); // remove and update
+            if ( p.getKey() != -1 && (!p.getValue().equals("Undefine")) ) {
+                if (C.containsKey(item.pat.pattern)) {
+                    C.remove(item.pat.pattern); // remove and update
                     item.pat.pinfo.count += 1;
-                    C.put(item.pat, item.pat.pinfo);
+                    C.put(item.pat.pattern, item.pat.pinfo);
                 }
 
-                Pattern predecessor = getPredecessor(item.pat, C);
-                if (!C.containsKey(item.pat) &&
-                        predecessor.pattern.length() > 0 && // not None
-                        predecessor.pinfo.freq > Config.threshhold) {
-                    item.pat.pinfo.count = 1;
-                    C.put(item.pat, item.pat.pinfo);
+                Pattern predecessor = getPredecessor(item.pat.pattern, C);
 
+                System.out.println("predecessor: " + predecessor);
+                if (!C.containsKey(item.pat.pattern) &&
+                        predecessor.pattern.length() > 0 && // not None
+                        predecessor.pinfo.freq >= Config.threshhold) {
+                    item.pat.pinfo.count = 1;
+                    C.put(item.pat.pattern, item.pat.pinfo);
                 }
             }
         }
+        System.out.println("after increment C: " + C);
 
         B.top = depth;
         // B[d] = None
@@ -184,37 +212,54 @@ public class Main {
         B.SB.get(depth).time = time;
 
         // update the frequency
-        for (Iterator<Map.Entry<Pattern, PatternInfo>> it = C.entrySet().iterator(); it.hasNext(); ) {
-            Map.Entry<Pattern, PatternInfo> entry = it.next();
-            entry.getKey().pinfo.freq = entry.getKey().pinfo.count / time;
+        for (Iterator<Map.Entry<String, PatternInfo>> it = C.entrySet().iterator(); it.hasNext(); ) {
+            Map.Entry<String, PatternInfo> entry = it.next();
+//            entry.getValue().freq = entry.getValue().count / time;
+            entry.getValue().setFreq(entry.getValue().count / time);
             // update the frequency in patternInfo
         }
 
         // Delete candidates
-        for (Iterator<Map.Entry<Pattern, PatternInfo>> it = C.entrySet().iterator(); it.hasNext(); ) {
-            Map.Entry<Pattern, PatternInfo> entry = it.next();
+        for (Iterator<Map.Entry<String, PatternInfo>> it = C.entrySet().iterator(); it.hasNext(); ) {
+            Map.Entry<String, PatternInfo> entry = it.next();
             Pattern predecessor = getPredecessor(entry.getKey(), C);
             if (predecessor.pattern.length() == 0) {
                 // do not have predecessor
             }else{
                 // infrequent at time i and frequent at time i-1
-
+                if (C.get(predecessor.pattern).freq >= Config.threshhold
+                        && Config.F.containsKey(predecessor.pattern)) {
+                    it.remove();
+                }
             }
-
         }
 
         // Insert candidates in B[d]
         for (Iterator<Triple> it = exp.iterator(); it.hasNext(); ) {
             Triple item = it.next();
-            if (C.containsKey(item.pat)) {
+            System.out.println("Insert candidates: " + item + "Inserted(True/False): " + C.containsKey(item.pat.pattern));
+            if (C.containsKey(item.pat.pattern)) {
                 B.SB.get(depth).B.add(item);
             }
         }
 
+        System.out.println("Branch Stack(B[d]) :" + B.SB.get(depth));
         return C;
+    }
+
+    public static void QueryFrequent(Map<String, PatternInfo> C) {
+        Config.F.clear();
+        for (Iterator<Map.Entry<String, PatternInfo>> it = C.entrySet().iterator(); it.hasNext(); ) {
+            Map.Entry<String, PatternInfo> item = it.next();
+            if (item.getValue().freq >= Config.threshhold) {
+                Config.F.put(item.getKey(), item.getValue());
+            }
+        }
     }
     
     public static void main(String args[]) throws Exception{
+        Config.v.add(new Pair<Integer, String>(0, ""));
+
         try {
             File file = new File(Config.input);
             BufferedReader bfReader = new BufferedReader(new FileReader(file));
@@ -223,11 +268,11 @@ public class Main {
             // initialize SB = None, top = -1; i = 1;
             SweepBranchStack SB = new SweepBranchStack();
 
-            Map<Pattern, PatternInfo> C = new HashMap<Pattern, PatternInfo>();
+            Map<String, PatternInfo> C = new HashMap<String, PatternInfo>();
             // the class of all single node patterns, is there any better way to handle?
-            C.put(new Pattern("0A"), new PatternInfo());
-            C.put(new Pattern("0B"), new PatternInfo());
-            C.put(new Pattern("0R"), new PatternInfo());
+            C.put("0A", new PatternInfo());
+            C.put("0B", new PatternInfo());
+            C.put("0R", new PatternInfo());
 
             String tempStr;
             while ((tempStr = bfReader.readLine()) != null) {
@@ -242,15 +287,13 @@ public class Main {
 
                 UpdateC(exp, SB, C, depth, label, time);
 
+                QueryFrequent(C);
+
                 time += 1;
             }
             bfReader.close();
         }catch (IOException e){
             e.printStackTrace();
         }
-    }
-
-    public static void test_function() {
-        // test the Set's get function
     }
 }

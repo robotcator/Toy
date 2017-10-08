@@ -10,6 +10,14 @@ public class Pair <K extends Object, V extends  Object> {
         this.key = key;
     }
 
+    public void setKey(K key) {
+        this.key = key;
+    }
+
+    public void setValue(V value) {
+        this.value = value;
+    }
+
     public K getKey() {
         return key;
     }
