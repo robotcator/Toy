@@ -2,10 +2,7 @@
  * Created by robotcator on 9/30/17.
  */
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.BasicParser;
-import org.apache.commons.cli.Options;
+import org.apache.commons.cli.*;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -15,26 +12,30 @@ import java.util.*;
 
 public class Main {
 
-    void CLI(String args[]) throws Exception{
+    public static void CLI(String args[]) throws Exception{
         CommandLineParser parser = new BasicParser( );
         Options options = new Options( );
         options.addOption("h", "help", false, "Print this usage information");
 
-        options.addOption("i", "i", false, "input file");
-        options.addOption("s", "support", false, "threshold" );
+        options.addOption("i", "input", true, "input file");
+        options.addOption("s", "support", true, "threshold" );
 
         CommandLine commandLine = parser.parse( options, args );
 
         if( commandLine.hasOption('h') ) {
-            System.out.println( "Help Message");
+            HelpFormatter hf = new HelpFormatter();
+            hf.printHelp("Options", options);
             System.exit(0);
         }
         if( commandLine.hasOption('i') ) {
-            Config.input = commandLine.getOptionValue('i');
+            Config.input = commandLine.getOptionValue("i");
         }
         if( commandLine.hasOption('s') ) {
-            Config.threshhold = Float.parseFloat(commandLine.getOptionValue('s'));
+            Config.threshold = Float.parseFloat(commandLine.getOptionValue("s"));
         }
+
+        System.out.println("The input file: " + Config.input);
+        System.out.println("The threshold: " + Config.threshold);
     }
 
     public static Pair<Integer, String> FindRootOcc(SweepBranchStack B, Triple t, Map<String, PatternInfo> C) {
@@ -194,7 +195,7 @@ public class Main {
                 System.out.println("predecessor: " + predecessor);
                 if (!C.containsKey(item.pat.pattern) &&
                         predecessor.pattern.length() > 0 && // not None
-                        predecessor.pinfo.freq >= Config.threshhold) {
+                        predecessor.pinfo.freq >= Config.threshold) {
                     item.pat.pinfo.count = 1;
                     C.put(item.pat.pattern, item.pat.pinfo);
                 }
@@ -227,7 +228,7 @@ public class Main {
                 // do not have predecessor
             }else{
                 // infrequent at time i and frequent at time i-1
-                if (C.get(predecessor.pattern).freq >= Config.threshhold
+                if (C.get(predecessor.pattern).freq >= Config.threshold
                         && Config.F.containsKey(predecessor.pattern)) {
                     it.remove();
                 }
@@ -251,7 +252,7 @@ public class Main {
         Config.F.clear();
         for (Iterator<Map.Entry<String, PatternInfo>> it = C.entrySet().iterator(); it.hasNext(); ) {
             Map.Entry<String, PatternInfo> item = it.next();
-            if (item.getValue().freq >= Config.threshhold) {
+            if (item.getValue().freq >= Config.threshold) {
                 Config.F.put(item.getKey(), item.getValue());
             }
         }
@@ -259,6 +260,8 @@ public class Main {
     
     public static void main(String args[]) throws Exception{
         Config.v.add(new Pair<Integer, String>(0, ""));
+
+        CLI(args);
 
         try {
             File file = new File(Config.input);

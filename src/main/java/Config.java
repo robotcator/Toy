@@ -8,7 +8,7 @@ import java.util.Map;
  */
 public class Config {
     static String input = "example.txt";
-    static double threshhold = 0.0;
+    static double threshold = 0.0;
     static int NodeNum = 0;
 
     // store the streamline data
