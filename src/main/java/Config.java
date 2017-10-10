@@ -7,6 +7,8 @@ import java.util.Map;
  * Created by robotcator on 9/30/17.
  */
 public class Config {
+    static boolean verbose = false;
+
     static String input = "example.txt";
     static double threshold = 0.0;
     static int NodeNum = 0;

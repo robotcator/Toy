@@ -6,7 +6,7 @@ import java.util.List;
  */
 public class PatternInfo {
     int count;
-    float freq;
+    double freq;
     List<Pair<Integer, String>> rootOccurence;
 
     public PatternInfo() {
@@ -22,7 +22,7 @@ public class PatternInfo {
         this.count = count;
     }
 
-    public void setFreq(float freq) {
+    public void setFreq(double freq) {
         this.freq = freq;
     }
 
