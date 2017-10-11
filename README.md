@@ -5,4 +5,8 @@
 
 to do:  
 
-3: Manku, Gurmeet Singh and Rajeev Motwani. “Approximate Frequency Counts over Data Streams.” PVLDB 5 (2002): 1699.
+Lossy Counting:
+
+3: Manku, Gurmeet Singh and Rajeev Motwani. “Approximate Frequency Counts over Data Streams.” PVLDB 5 (2002): 1699.  
+4: tutorial http://www.mathcs.emory.edu/~cheung/Courses/584-StreamDB/Syllabus/07-Heavy/Manku.html  
+5: code https://github.com/mugenen/LossyCounting
