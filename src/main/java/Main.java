@@ -142,9 +142,8 @@ public class Main {
             // Change the bottom occurrences of the triples
             for (Iterator<Triple> it = Change.iterator(); it.hasNext(); ) {
                 Triple triple = it.next();
-//                if (triple.bottom == depth-1) { // ?
-                    B.SB.get(depth-1).B.add(triple);
-//                }
+                triple.bottom = depth-1;
+                B.SB.get(depth-1).B.add(triple);
             }
         }
 
@@ -163,7 +162,10 @@ public class Main {
                 exp.add(new Triple(new Pattern(T), item.root, depth));
             }
         }
-        if (Config.verbose) System.out.println("updateB: " + exp);
+        if (Config.verbose) {
+            System.out.println("B[d-1]: " + B.SB.get(depth-1));
+            System.out.println("updateB: " + exp);
+        }
         return exp;
     }
 
