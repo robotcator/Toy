@@ -18,30 +18,6 @@ public class PatternInfo {
         first = last = 0;
     }
 
-    public void increaseFreq(int time, boolean model, double gamma) {
-        // model
-        // false: online model
-        // true: forgeting model
-        if (model) {
-
-        }else {
-
-        }
-    }
-
-    public double getFreq(int time, boolean model, double gamma) {
-        // model
-        // false: online model
-        // true: forgeting model
-        if (model) {
-
-        }else{
-            return freq;
-        }
-        return 0;
-    }
-
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

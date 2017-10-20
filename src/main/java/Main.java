@@ -196,8 +196,32 @@ public class Main {
         }
     }
 
-    public static void updateFrequency() {
+    public void increaseFreq(Triple t, Map<String, PatternInfo> C, int time, boolean model, double gamma) {
+        // model
+        // false: online model
+        // true: forgeting model
+        if (model) {
 
+        }else {
+            if (C.containsKey(t.pat.pattern)) {
+                C.get(t.pat.pattern).count += 1;
+            }else{
+                t.pat.pinfo.count = 1;
+                C.put(t.pat.pattern, t.pat.pinfo);
+            }
+        }
+    }
+
+    public double getFreq(int time, boolean model, double gamma) {
+        // model
+        // false: online model
+        // true: forgeting model
+        if (model) {
+
+        }else{
+
+        }
+        return 0;
     }
 
     public static Map<String, PatternInfo> UpdateC(List<Triple> exp, SweepBranchStack B, Map<String, PatternInfo> C,
@@ -215,15 +239,27 @@ public class Main {
 
             if ( p.getKey() != -1 && (!p.getValue().equals("Undefine")) ) {
                 if (C.containsKey(item.pat.pattern)) {
-//                    C.remove(item.pat.pattern); // remove and update/
-                    item.pat.pinfo.count += 1;
-//                    C.get(item.pat.pattern).count += 1;
 
-                    if (Config.ForgetingModel) {
-                        item.pat.pinfo.freq += 0;
+                    if (!Config.ForgetingModel) {
+                        C.get(item.pat.pattern).count += 1;
+                    }else{
+                        // forgeting model
+                        if (C.get(item.pat.pattern).count == 0) {
+                            // for the pre-insert pattern sake
+//                            C.get(item.pat.pattern).freq = 1.0 / time;
+
+                            C.get(item.pat.pattern).first = time;
+                            C.get(item.pat.pattern).last = time;
+                        }else{
+//                            PatternInfo Tmp = C.get(item.pat.pattern);
+//                            double lastFreq = Tmp.freq * Tmp.last * Math.exp(time - Tmp.last) / (time-1);
+//                            C.get(item.pat.pattern).freq = lastFreq + 1.0 / time;
+                            C.get(item.pat.pattern).first = C.get(item.pat.pattern).last;
+                            C.get(item.pat.pattern).last = time;
+                        }
+                        C.get(item.pat.pattern).count += 1;
                     }
 
-                    C.put(item.pat.pattern, item.pat.pinfo);
                 }
 
                 Pattern predecessor = getPredecessor(item.pat.pattern, C);
@@ -231,11 +267,26 @@ public class Main {
 
                 if (!C.containsKey(item.pat.pattern) &&
                         predecessor.pattern.length() > 0 && // not None
-//                        predecessor.pinfo.getFreq(time, Config.ForgetingModel, Config.gamma) >= Config.threshold) {// for not update frequency
-                        predecessor.pinfo.count * 1.0 / time >= Config.threshold) {
-                    item.pat.pinfo.count = 1;
-                    C.put(item.pat.pattern, item.pat.pinfo);
+                        predecessor.pinfo.freq >= Config.threshold) {
+
+                    if (!Config.ForgetingModel) {
+                        item.pat.pinfo.count = 1;
+                        C.put(item.pat.pattern, item.pat.pinfo);
+                    }else{
+
+                        item.pat.pinfo.count = 1;
+                        item.pat.pinfo.first = time;
+                        item.pat.pinfo.last = time;
+                        C.put(item.pat.pattern, item.pat.pinfo);
+
+                    }
                 }
+            }
+        }
+        for (Iterator<Map.Entry<String, PatternInfo>> it = C.entrySet().iterator(); it.hasNext(); ) {
+            Map.Entry<String, PatternInfo> item = it.next();
+            if (item.getValue().count > 0) {
+                System.out.println(item.getKey() + " " + item.getValue().count);
             }
         }
 
@@ -252,10 +303,35 @@ public class Main {
             // update the frequency
             for (Iterator<Map.Entry<String, PatternInfo>> it = C.entrySet().iterator(); it.hasNext(); ) {
                 Map.Entry<String, PatternInfo> entry = it.next();
-                entry.getValue().freq = entry.getValue().count / time;
+                entry.getValue().freq = entry.getValue().count * 1.0 / time;
                 // update the frequency in patternInfo
             }
             if (Config.verbose) System.out.println("after increment C: " + C);
+        }else{
+            System.out.println("debugging: forgeting model");
+
+            for (Iterator<Map.Entry<String, PatternInfo>> it = C.entrySet().iterator(); it.hasNext(); ) {
+                Map.Entry<String, PatternInfo> entry = it.next();
+//                System.out.println(entry.getKey() + " " + entry.getValue().count +
+//                        " " + entry.getValue().first + " " + entry.getValue().last);
+                if (entry.getValue().last == time) {
+                    // hit at time i
+                    if (entry.getValue().first == time) {
+                        // hit at time i, but it is the first time
+                        double lastFreq = entry.getValue().freq * entry.getValue().last * Math.exp(time - entry.getValue().last) / (time);
+                        C.get(entry.getKey()).freq = lastFreq + 1.0 / time;
+                    }else{
+                        double lastFreq = entry.getValue().freq * entry.getValue().last * Math.exp(time - entry.getValue().last) / (time);
+                        C.get(entry.getKey()).freq = lastFreq;
+                    }
+                }else{
+                    // did not hit at time i
+                    double lastFreq = entry.getValue().freq * entry.getValue().last * Math.exp(time - entry.getValue().last) / (time);
+                    C.get(entry.getKey()).freq = lastFreq;
+                }
+                // update the frequency in patternInfo
+            }
+
         }
 
         // Delete candidates
@@ -267,7 +343,7 @@ public class Main {
                 // do not have predecessor
             }else{
                 // infrequent at time i and frequent at time i-1
-                if (C.get(predecessor.pattern).getFreq(time, Config.ForgetingModel, Config.gamma) < Config.threshold
+                if (C.get(predecessor.pattern).freq < Config.threshold
                         && Config.F.containsKey(predecessor.pattern)) {
                     it.remove();
                 }
