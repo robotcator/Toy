@@ -9,22 +9,38 @@ public class PatternInfo {
     double freq;
     List<Pair<Integer, String>> rootOccurence;
 
+    int first;
+    int last;
+
     public PatternInfo() {
         this.count = 0;
         this.rootOccurence = new ArrayList<Pair<Integer, String>>();
+        first = last = 0;
     }
 
-    public int getCount() {
-        return count;
+    public void increaseFreq(int time, boolean model, double gamma) {
+        // model
+        // false: online model
+        // true: forgeting model
+        if (model) {
+
+        }else {
+
+        }
     }
 
-    public void setCount(int count) {
-        this.count = count;
+    public double getFreq(int time, boolean model, double gamma) {
+        // model
+        // false: online model
+        // true: forgeting model
+        if (model) {
+
+        }else{
+            return freq;
+        }
+        return 0;
     }
 
-    public void setFreq(double freq) {
-        this.freq = freq;
-    }
 
     @Override
     public boolean equals(Object o) {

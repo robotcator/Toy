@@ -13,6 +13,9 @@ public class Config {
     static double threshold = 0.0;
     static int NodeNum = 0;
 
+    static boolean ForgetingModel = false;
+    static double gamma = 0.5;
+
     // store the streamline data
     static List<Pair<Integer, String>> v = new ArrayList<Pair<Integer, String>>();
 

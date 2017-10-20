@@ -38,6 +38,24 @@ public class Main {
         System.out.println("The threshold: " + Config.threshold);
     }
 
+    public static Pair<Integer, String> FindRootOcc(SweepBranchStack B, Triple t, Map<String, PatternInfo> C, int time)  {
+        // Test
+        int T = -1;
+        if (B.SB.size() <= t.root) {
+            T = time;
+        }else{
+            T = B.SB.get(t.root).time;
+        }
+        System.out.println("the time: " + T);
+        Pair<Integer, String> p = Config.v.get(T);
+        if (C.containsKey(t.pat.pattern)) {
+
+        }else{
+
+        }
+        return new Pair<Integer, String>(0, "");
+    }
+
     public static Pair<Integer, String> FindRootOcc(SweepBranchStack B, Triple t, Map<String, PatternInfo> C) {
         if (Config.verbose) {
             System.out.println("FindRootOcc: " + t + " " + B.SB.size());
@@ -99,7 +117,6 @@ public class Main {
                         return p;
                     }
                 }
-
             }
         }
     }
@@ -163,9 +180,9 @@ public class Main {
             }
         }
         if (Config.verbose) {
-            System.out.println("B[d-1]: " + B.SB.get(depth-1));
-            System.out.println("updateB: " + exp);
+            if(depth-1 >= 0) System.out.println("B[d-1]: " + B.SB.get(depth-1));
         }
+        System.out.println("updateB exp: " + exp);
         return exp;
     }
 
@@ -177,6 +194,10 @@ public class Main {
         }else{
             return new Pattern(predecessor, C.get(predecessor));
         }
+    }
+
+    public static void updateFrequency() {
+
     }
 
     public static Map<String, PatternInfo> UpdateC(List<Triple> exp, SweepBranchStack B, Map<String, PatternInfo> C,
@@ -196,8 +217,13 @@ public class Main {
                 if (C.containsKey(item.pat.pattern)) {
 //                    C.remove(item.pat.pattern); // remove and update/
                     item.pat.pinfo.count += 1;
-                    C.get(item.pat.pattern).count += 1;
-//                    C.put(item.pat.pattern, item.pat.pinfo);
+//                    C.get(item.pat.pattern).count += 1;
+
+                    if (Config.ForgetingModel) {
+                        item.pat.pinfo.freq += 0;
+                    }
+
+                    C.put(item.pat.pattern, item.pat.pinfo);
                 }
 
                 Pattern predecessor = getPredecessor(item.pat.pattern, C);
@@ -205,7 +231,7 @@ public class Main {
 
                 if (!C.containsKey(item.pat.pattern) &&
                         predecessor.pattern.length() > 0 && // not None
-//                        predecessor.pinfo.freq >= Config.threshold // for not update frequency
+//                        predecessor.pinfo.getFreq(time, Config.ForgetingModel, Config.gamma) >= Config.threshold) {// for not update frequency
                         predecessor.pinfo.count * 1.0 / time >= Config.threshold) {
                     item.pat.pinfo.count = 1;
                     C.put(item.pat.pattern, item.pat.pinfo);
@@ -222,14 +248,15 @@ public class Main {
         }
         B.SB.get(depth).time = time;
 
-        // update the frequency
-        for (Iterator<Map.Entry<String, PatternInfo>> it = C.entrySet().iterator(); it.hasNext(); ) {
-            Map.Entry<String, PatternInfo> entry = it.next();
-//            entry.getValue().freq = entry.getValue().count / time;
-            entry.getValue().setFreq(entry.getValue().count * 1.0 / time);
-            // update the frequency in patternInfo
+        if (!Config.ForgetingModel) {
+            // update the frequency
+            for (Iterator<Map.Entry<String, PatternInfo>> it = C.entrySet().iterator(); it.hasNext(); ) {
+                Map.Entry<String, PatternInfo> entry = it.next();
+                entry.getValue().freq = entry.getValue().count / time;
+                // update the frequency in patternInfo
+            }
+            if (Config.verbose) System.out.println("after increment C: " + C);
         }
-        if (Config.verbose) System.out.println("after increment C: " + C);
 
         // Delete candidates
         for (Iterator<Map.Entry<String, PatternInfo>> it = C.entrySet().iterator(); it.hasNext(); ) {
@@ -240,7 +267,7 @@ public class Main {
                 // do not have predecessor
             }else{
                 // infrequent at time i and frequent at time i-1
-                if (C.get(predecessor.pattern).freq < Config.threshold
+                if (C.get(predecessor.pattern).getFreq(time, Config.ForgetingModel, Config.gamma) < Config.threshold
                         && Config.F.containsKey(predecessor.pattern)) {
                     it.remove();
                 }
@@ -313,7 +340,7 @@ public class Main {
 
                 UpdateC(exp, SB, C, depth, label, time);
 
-                QueryFrequent(C, time);
+//                QueryFrequent(C, time);
 
                 time += 1;
             }
